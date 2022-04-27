@@ -14,52 +14,52 @@ const { NotImplementedError } = require('../extensions/index.js');
  * 
  */
 function transform(arr) {
-  if(!Array.isArray(arr) || !(arr instanceof Array))
-    return new Error("'arr' parameter must be an instance of the Array!");
+  try {
+    if(!Array.isArray(arr) || !(arr instanceof Array))
+      throw new Error("'arr' parameter must be an instance of the Array!");
 
-console.log('array: ', arr);
-
-  const array= arr.reduce((res, item, index) => {
-    console.log('res: ', res, item);
-    switch (item) {
-      case '--discard-next': {
-        if(index + 1 < arr.length)
-          arr.splice((index + 1), 1);
-        
-        return res;
-      }
-      case '--discard-prev': {
-        if(res.length > 0) 
-          res.pop();
-                
-        return res;
-        break;
-      }
-      case '--double-next':{
-        if(index + 1 < arr.length)
-          return [...res, arr[index + 1]];
-        
-        return res;
-      }
-      case '--double-prev': {
-        if(index === 0)
+    if(arr.length === 0)
+      return arr;
+    
+    if(!arr.includes('--discard-next') && !arr.includes('--discard-prev') && !arr.includes('--double-next') && !arr.includes('--double-prev'))
+      return arr;
+  
+    const array= arr.reduce((res, item, index) => {
+      switch (item) {
+        case '--discard-next': {
+          if(index + 1 < arr.length)
+            arr.splice(index, 2);
+          
           return res;
-
-        return [...res, arr[index - 1]];
+        }
+        case '--discard-prev': {
+          if(res.length > 0) 
+            res.pop();
+                  
+          return res;
+        }
+        case '--double-next':{
+          if(index + 1 < arr.length)
+            return [...res, arr[index + 1]];
+          
+          return res;
+        }
+        case '--double-prev': {
+          if(index === 0)
+            return res;
+  
+          return [...res, arr[index - 1]];
+        }
+        default:
+          return [...res, item];
       }
-      default:
-        return [...res, item];      
-    }
-  }, []);
-  console.log(array);
-  return array;
-}
+    }, []);
 
-// transform([1, 2, 3, '--double-next', 4, 5]);
-// transform(['--discard-prev', 1, 2, 3]);
-// transform(['--double-prev', 1, 2, 3]);
-// transform([1, 2, 3, '--double-next']);
-// transform([1, 2, 3, '--discard-next']);
+    return array;
+  } catch {
+     throw new Error("'arr' parameter must be an instance of the Array!");  
+  }  
+}
 
 module.exports = {
   transform
